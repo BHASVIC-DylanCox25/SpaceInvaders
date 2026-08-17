@@ -1,13 +1,5 @@
 import pygame
-
-pygame.init()
-
-SCREEN_WIDTH = 700
-SCREEN_HEIGHT = 800
-
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Space Invaders")
-
+from laser import Laser
 
 class Spaceship(pygame.sprite.Sprite):
     def __init__(self, screen_width, screen_height):
@@ -56,56 +48,3 @@ class Spaceship(pygame.sprite.Sprite):
         self.limits()
         self.laser_group.update()
         self.laser_recharge()
-
-
-class Laser(pygame.sprite.Sprite):
-    def __init__(self, position, speed, screen_height):
-        super().__init__()
-        self.image = pygame.Surface((4, 15))
-        self.image.fill((0, 255, 0))
-        self.speed = speed
-        self.screen_height = screen_height
-        self.rect = self.image.get_rect(center = position)
-
-
-    def update(self):
-        self.rect.y -= self.speed
-
-        if self.rect.y > self.screen_height + 15 or self.rect.y < 0:
-            self.kill()
-
-    
-
-
-BG_COLOR = (0,0,0)
-
-
-
-spaceship = Spaceship(700, 800)
-spaceship_group = pygame.sprite.GroupSingle()
-spaceship_group.add(spaceship)
-
-
-def main():
-    clock = pygame.time.Clock()
-    run = True
-
-    while run:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-
-        # Update Spacship
-        spaceship_group.update()
-
-
-        # Drawing
-        screen.fill(BG_COLOR)
-        spaceship_group.draw(screen)
-        spaceship_group.sprite.laser_group.draw(screen)
-
-        pygame.display.update()
-        clock.tick(60)
-
-
-main()

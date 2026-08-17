@@ -25,12 +25,12 @@ grid = [
 ]
 
 class Obstacle():
-    def __init__(self):
+    def __init__(self, x, y):
         self.block_group = pygame.sprite.Group()
         for row in range(len(grid)):
             for column in range(len(grid[0])):
                 if grid[row][column] == 1:
-                    pos_x = column * 3
-                    pos_y = row * 3
+                    pos_x = x + column * 3
+                    pos_y = y + row * 3
                     block = Block(pos_x, pos_y)
                     self.block_group.add(block)

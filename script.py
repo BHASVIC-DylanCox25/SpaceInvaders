@@ -1,0 +1,111 @@
+import pygame
+
+pygame.init()
+
+SCREEN_WIDTH = 700
+SCREEN_HEIGHT = 800
+
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Space Invaders")
+
+
+class Spaceship(pygame.sprite.Sprite):
+    def __init__(self, screen_width, screen_height):
+        super().__init__()
+        self.screen_width = screen_width
+        self.screen_height = screen_height
+        self.image = pygame.image.load("Images/Spaceship.png")
+        self.rect = self.image.get_rect(midbottom = (self.screen_width / 2, self.screen_height))
+        self.speed = 6
+        self.laser_group = pygame.sprite.Group()
+        self.laser_ready = True
+        self.laser_time = 0
+        self.laser_delay = 300
+
+    def get_user_input(self):
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_RIGHT]: 
+            self.rect.x += self.speed
+
+        if keys[pygame.K_LEFT]: 
+            self.rect.x -= self.speed
+
+        if keys[pygame.K_SPACE] and self.laser_ready:
+            self.laser_ready = False
+            laser = Laser(self.rect.center, 5, self.screen_height)
+            self.laser_group.add(laser)
+            self.laser_time = pygame.time.get_ticks()
+
+    def limits(self):
+        if self.rect.right > self.screen_width:
+            self.rect.right = self.screen_width
+
+        if self.rect.x < 0:
+            self.rect.x = 0
+
+
+    def laser_recharge(self):
+        if not self.laser_ready:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.laser_time >= self.laser_delay:
+                self.laser_ready = True
+
+    def update(self):
+        self.get_user_input()
+        self.limits()
+        self.laser_group.update()
+        self.laser_recharge()
+
+
+class Laser(pygame.sprite.Sprite):
+    def __init__(self, position, speed, screen_height):
+        super().__init__()
+        self.image = pygame.Surface((4, 15))
+        self.image.fill((0, 255, 0))
+        self.speed = speed
+        self.screen_height = screen_height
+        self.rect = self.image.get_rect(center = position)
+
+
+    def update(self):
+        self.rect.y -= self.speed
+
+        if self.rect.y > self.screen_height + 15 or self.rect.y < 0:
+            self.kill()
+
+    
+
+
+BG_COLOR = (0,0,0)
+
+
+
+spaceship = Spaceship(700, 800)
+spaceship_group = pygame.sprite.GroupSingle()
+spaceship_group.add(spaceship)
+
+
+def main():
+    clock = pygame.time.Clock()
+    run = True
+
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+
+        # Update Spacship
+        spaceship_group.update()
+
+
+        # Drawing
+        screen.fill(BG_COLOR)
+        spaceship_group.draw(screen)
+        spaceship_group.sprite.laser_group.draw(screen)
+
+        pygame.display.update()
+        clock.tick(60)
+
+
+main()
